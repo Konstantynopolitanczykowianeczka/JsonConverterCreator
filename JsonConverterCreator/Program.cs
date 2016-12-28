@@ -8,6 +8,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Bson;
 using System.IO;
+using WorldGenerate;
 
 namespace JsonConverterGenerator {
 
@@ -80,18 +81,11 @@ namespace JsonConverterGenerator {
             string entfile = Console.ReadLine();
             Console.Write("Name exit File: ");
             string extfile = Console.ReadLine();
-
-            JArray array = JsonConvert.DeserializeObject<JArray>(
-                File.ReadAllText(entfile));
-            if (formattype == "y") {
-                File.WriteAllText(extfile,
-                    JsonConvert.SerializeObject(array, Formatting.Indented));
-            } else if (formattype == "n") {
-                File.WriteAllText(extfile,
-                    JsonConvert.SerializeObject(array, Formatting.None));
-            } else {
-                Environment.Exit(1);
-            }
+            JsonHighConverter Convertus =  new JsonHighConverter();
+            if (formattype == "y") Convertus.FormatJson = Formatting.Indented;
+            else if (formattype == "n") Convertus.FormatJson = Formatting.None;
+            else Environment.Exit(1);
+            File.WriteAllText(extfile, Convertus.JsonToJson(File.ReadAllText(entfile)));
         }
 
         static void Convert() {
@@ -99,44 +93,26 @@ namespace JsonConverterGenerator {
             string entfile = Console.ReadLine();
             Console.Write("Name exit File: ");
             string extfile = Console.ReadLine();
+            JsonHighConverter Convertus = new JsonHighConverter(Formatting.Indented, true);
             if (entfile.Substring(entfile.Length - 5, 5).IndexOf(".json") != -1) {
-                JArray array = JsonConvert.DeserializeObject<JArray>(
-                    File.ReadAllText(entfile));
-                using (var stream = new FileStream(extfile, FileMode.Create))
-                using (BsonWriter writer = new BsonWriter(stream))
-                    array.WriteTo(writer);
+                File.WriteAllBytes(extfile,
+                        Convertus.JsonToBson(File.ReadAllText(entfile)));
             } else {
-                using (var stream = new FileStream(entfile, FileMode.Open)) {
-                    JsonSerializer ser = new JsonSerializer();
-                    BsonReader reader = new BsonReader(stream);
-                    reader.ReadRootValueAsArray = true;
-                    JArray array = ser.Deserialize<JArray>(reader);
-                    File.WriteAllText(extfile, JsonConvert.SerializeObject(array));
-                }
+                File.WriteAllText(extfile,
+                    Convertus.BsonToJson(File.ReadAllBytes(entfile)));
             }
         }
 
         static void DropFile(string[] args) {
-
+            JsonHighConverter Convertus = new JsonHighConverter(Formatting.Indented,true);
             foreach (string file in args) {
                 //.json to .data
                 if (file.Substring(file.Length - 5, 5).IndexOf(".json") != -1) {
-                    JArray array = JsonConvert.DeserializeObject<JArray>(
-                    File.ReadAllText(file));
-                    string resultfile = GetOnlyNameFile(file) + ".dat";
-                    using (var stream = new FileStream(resultfile, FileMode.Create))
-                    using (BsonWriter writer = new BsonWriter(stream))
-                        array.WriteTo(writer);
+                    File.WriteAllBytes(GetOnlyNameFile(file) + ".dat",
+                        Convertus.JsonToBson(File.ReadAllText(file)));
                 } else { //.data to .json
-                    JArray array;
-                    string resultfile = GetOnlyNameFile(file) + ".json";
-                    using (var stream = new FileStream(file, FileMode.Open))
-                    using (BsonReader reader = new BsonReader(stream)) {
-                        reader.ReadRootValueAsArray = true;
-                        JsonSerializer serial = new JsonSerializer();
-                        array = serial.Deserialize<JArray>(reader);
-                        File.WriteAllText(resultfile,JsonConvert.SerializeObject(array,Formatting.Indented));
-                    }
+                    File.WriteAllText(GetOnlyNameFile(file) + ".json",
+                    Convertus.BsonToJson(File.ReadAllBytes(file)));
                 }
                 Console.WriteLine(file + " end");
             }
