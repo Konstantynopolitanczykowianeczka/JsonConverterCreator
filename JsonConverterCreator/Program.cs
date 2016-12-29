@@ -33,11 +33,25 @@ namespace JsonConverterGenerator {
     }
 
     class Program {
-        /// <summary>
-        /// fast write.
-        /// </summary>
-        /// <param name="args"></param>
+        class Settings {
+            public bool ReadRootValueAsArray;
+        }
+        static Settings settings;
+
+        static void InstallSettings() {
+            //jsonMania ( ͡° ͜ʖ ͡°)
+            if (!File.Exists("Settings.json")) {
+                settings = new Settings();
+                File.WriteAllText("Settings.json", JsonConvert.SerializeObject(
+                    settings, Formatting.Indented));
+            } else {
+                settings = JsonConvert.DeserializeObject<Settings>(
+                    File.ReadAllText("Settings.json"));
+            }
+        }
+
         static void Main(string[] args) {
+            InstallSettings();
             if (args.Length > 0) {
                 DropFile(args);
                 return;
