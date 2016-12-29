@@ -107,7 +107,7 @@ namespace JsonConverterGenerator {
             string entfile = Console.ReadLine();
             Console.Write("Name exit File: ");
             string extfile = Console.ReadLine();
-            JsonHighConverter Convertus = new JsonHighConverter(Formatting.Indented, true);
+            JsonHighConverter Convertus = new JsonHighConverter(Formatting.Indented, settings.ReadRootValueAsArray);
             if (entfile.Substring(entfile.Length - 5, 5).IndexOf(".json") != -1) {
                 File.WriteAllBytes(extfile,
                         Convertus.JsonToBson(File.ReadAllText(entfile)));
@@ -118,7 +118,7 @@ namespace JsonConverterGenerator {
         }
 
         static void DropFile(string[] args) {
-            JsonHighConverter Convertus = new JsonHighConverter(Formatting.Indented,true);
+            JsonHighConverter Convertus = new JsonHighConverter(Formatting.Indented, settings.ReadRootValueAsArray);
             foreach (string file in args) {
                 //.json to .data
                 if (file.Substring(file.Length - 5, 5).IndexOf(".json") != -1) {

@@ -16,7 +16,11 @@ namespace WorldGenerate {
 
         public JsonHighConverter() {
             serializer = new JsonSerializer();
-            ReadRootValueAsArray = false;
+        }
+
+        public JsonHighConverter(bool ReadRootValueAsArray)
+            : this(){
+            this.ReadRootValueAsArray = ReadRootValueAsArray;
         }
 
         public JsonHighConverter(Formatting format) : this() {
