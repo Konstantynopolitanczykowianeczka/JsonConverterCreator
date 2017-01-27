@@ -33,27 +33,11 @@ namespace JsonConverterGenerator {
     }
 
     class Program {
-        class Settings {
-            public bool ReadRootValueAsArray;
-        }
-        static Settings settings;
-
-        static void InstallSettings() {
-            //jsonMania ( ͡° ͜ʖ ͡°)
-            if (!File.Exists("Settings.json")) {
-                settings = new Settings();
-                File.WriteAllText("Settings.json", JsonConvert.SerializeObject(
-                    settings, Formatting.Indented));
-            } else {
-                settings = JsonConvert.DeserializeObject<Settings>(
-                    File.ReadAllText("Settings.json"));
-            }
-        }
 
         static void Main(string[] args) {
-            InstallSettings();
+            Settings.GenerateSettings();
             if (args.Length > 0) {
-                DropFile(args);
+                DropFile.DropFiles(args);
                 return;
             }
             while (true) {
@@ -107,7 +91,7 @@ namespace JsonConverterGenerator {
             string entfile = Console.ReadLine();
             Console.Write("Name exit File: ");
             string extfile = Console.ReadLine();
-            JsonHighConverter Convertus = new JsonHighConverter(Formatting.Indented, settings.ReadRootValueAsArray);
+            JsonHighConverter Convertus = new JsonHighConverter(Formatting.Indented, Settings.settings.ReadRootValueAsArray);
             if (entfile.Substring(entfile.Length - 5, 5).IndexOf(".json") != -1) {
                 File.WriteAllBytes(extfile,
                         Convertus.JsonToBson(File.ReadAllText(entfile)));
@@ -115,27 +99,6 @@ namespace JsonConverterGenerator {
                 File.WriteAllText(extfile,
                     Convertus.BsonToJson(File.ReadAllBytes(entfile)));
             }
-        }
-
-        static void DropFile(string[] args) {
-            JsonHighConverter Convertus = new JsonHighConverter(Formatting.Indented, settings.ReadRootValueAsArray);
-            foreach (string file in args) {
-                //.json to .data
-                if (file.Substring(file.Length - 5, 5).IndexOf(".json") != -1) {
-                    File.WriteAllBytes(GetOnlyNameFile(file) + ".dat",
-                        Convertus.JsonToBson(File.ReadAllText(file)));
-                } else { //.data to .json
-                    File.WriteAllText(GetOnlyNameFile(file) + ".json",
-                    Convertus.BsonToJson(File.ReadAllBytes(file)));
-                }
-                Console.WriteLine(file + " end");
-            }
-        }
-        static string GetOnlyNameFile(string filelocation) {
-            string name = new FileInfo(filelocation).Name;
-            int index = name.LastIndexOf('.');
-            if (index != -1) name = name.Remove(index);
-            return name;
         }
     }
 }
