@@ -44,6 +44,7 @@ namespace WorldGenerate {
         public string BsonToJson(byte[] Bson) {
             using(var str = new MemoryStream(Bson)) {
                 using(var reader = new BsonReader(str)) {
+                    
                     str.Seek(0, SeekOrigin.Begin);
                     reader.ReadRootValueAsArray = ReadRootValueAsArray;
                     return JsonConvert.SerializeObject(serializer.Deserialize(reader),FormatJson);
